@@ -196,25 +196,6 @@ function App() {
         });
     }
     handleUsers(id);
-    // await fetch(`https://referral-factory.com/api/v1/users/${id}`, {
-    //   method: "PUT",
-    //   headers: new Headers({
-    //     "Content-Type": "application/x-www-form-urlencoded",
-    //     Authorization: `Bearer ${token}`,
-    //   }),
-    //   body: `qualified=1&select=id`,
-    // })
-    //   .then((res) => res.json())
-    //   .then(async (data) => {
-    //     await console.log("========");
-    //     await console.log(data);
-
-    //     await console.log("========");
-
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
   };
 
   const handleClickOpen = async (id) => {
