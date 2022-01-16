@@ -65,6 +65,7 @@ function App() {
     "November",
     "December",
   ];
+  const [usersEmailSend, setUsersEmailSend] = useState([]);
 
   useEffect(() => {
     console.log(users);
@@ -73,6 +74,10 @@ function App() {
   useEffect(() => {
     console.log("referi->", referi);
   }, [referi]);
+
+  useEffect(() => {
+    console.log("Email: users->", usersEmailSend);
+  }, [usersEmailSend]);
 
   const handleClose = () => {
     setOpen(false);
@@ -92,6 +97,9 @@ function App() {
   const handleCloseModal = () => {
     setOpenModal(false);
   };
+
+  const [showEmailSection, setSHowEmailSection] = useState(false);
+  const [mailContent, setMailContent] = useState(false);
 
   const [openModalQualified, setOpenModalQualified] = useState(false);
 
@@ -496,6 +504,25 @@ function App() {
     );
   };
 
+  const showEmail = async () => {
+    await fetch(`https://referral-factory.com/api/v1/users/`, {
+      method: "GET",
+      headers: new Headers({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      }),
+    })
+      .then((res) => res.json())
+      .then(async (data) => {
+        console.log(data.data);
+        setUsersEmailSend(data.data.filter((u) => id == u.campaign_id));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    setMailContent(true);
+  };
+
   return (
     <Grid
       container
@@ -521,6 +548,7 @@ function App() {
                 justifyContent="center"
                 alignItems="center"
               >
+                {/* search for a Campaign section */}
                 <Grid item xs={12} style={{ padding: 20 }}>
                   <div
                     style={{
@@ -553,6 +581,8 @@ function App() {
                 </Grid>
 
                 <Divider style={{ width: "100%" }} />
+
+                {/* Campaign information section  */}
                 <Grid item xs={12} style={{ padding: code ? 20 : 0 }}>
                   {code && (
                     <div style={{ border: "1px solid grey", padding: 20 }}>
@@ -835,11 +865,90 @@ function App() {
                           )}
                         </Table>
                       </TableContainer>
-                      {/* 
-                        <div style={{ height: 400, width: "100%" }}>
-                          <DataGrid rows={users} columns={columns} />
-                        </div> */}
                     </div>
+                  )}
+                </Grid>
+
+                <Divider style={{ width: "100%" }} />
+
+                {/* Campaign users section */}
+                <Grid item xs={12} style={{ padding: 20 }}>
+                  {!showEmailSection && (
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      onClick={() => {
+                        setSHowEmailSection(true);
+                      }}
+                      style={{ width: "100%" }}
+                      disabled={code.length == 0 ? true : false}
+                    >
+                      Show
+                    </Button>
+                  )}
+                  {showEmailSection && (
+                    <>
+                      <Grid item xs={12} style={{ padding: 20 }}>
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          onClick={() => {
+                            showEmail();
+                          }}
+                          // style={{ width: "100%" }}
+                        >
+                          Show Email
+                        </Button>
+                        {mailContent && (
+                          <>
+                            {usersEmailSend.map(
+                              (u) =>
+                                // u.qualified ? (
+                                usersEmailSend.filter(
+                                  (user) =>
+                                    user.referrer_id == u.id && user.qualified
+                                ).length > 0 ? (
+                                  <>
+                                    <Grid item xs={12} key={u.id}>
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          justifyContent: "space-between",
+                                        }}
+                                      >
+                                        <p>
+                                          {u.id} - {u.first_name} -{u.email}
+                                        </p>
+                                        <p>
+                                          {
+                                            usersEmailSend.filter(
+                                              (user) =>
+                                                user.referrer_id == u.id &&
+                                                user.qualified
+                                            ).length
+                                          }
+                                        </p>
+                                      </div>
+                                    </Grid>
+                                  </>
+                                ) : null
+                              // ) : null
+                            )}
+                          </>
+                        )}
+                      </Grid>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        onClick={() => {
+                          setSHowEmailSection(false);
+                          setMailContent(false);
+                        }}
+                        style={{ width: "100%" }}
+                      >
+                        Hide
+                      </Button>
+                    </>
                   )}
                 </Grid>
               </Grid>
