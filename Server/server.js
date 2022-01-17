@@ -9,11 +9,11 @@ app.use(cors());
 app.use(express.json());
 
 const CLIENT_ID =
-  "865751831961-dojct3tfnf2nn404nvq02qpgevdjie8d.apps.googleusercontent.com";
-const CLEINT_SECRET = "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";
+  "368838655873-ssaut354d0fltik4lla2nkb8aorq5fan.apps.googleusercontent.com";
+const CLEINT_SECRET = "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";
 const REDIRECT_URI = "https://developers.google.com/oauthplayground";
 const REFRESH_TOKEN =
-  "1//047zG-9Zr5AX6CgYIARAAGAQSNwF-L9Ir9TNlTHv-pah_DCT8AyIaR10BUxJJ3hA8QtZfkODMj5T-jA2nSD3UXYrXBVNb8T-YdHY";
+  "1//049rF0fhq9gpzCgYIARAAGAQSNwF-L9IroMDEdszlml2Y7HbyrAiJrIWixeIgqSlLaS0dXUg5jDcurZWKqogjv9PUj4NLIxOC7kY";
 
 //give reward
 app.post("/sendemail", async (req, res) => {
@@ -48,7 +48,7 @@ async function sendAutoMail(list) {
       service: "gmail",
       auth: {
         type: "OAuth2",
-        user: "najafisaeed@gmail.com",
+        user: "automation@referral-factory.com",
         clientId: CLIENT_ID,
         clientSecret: CLEINT_SECRET,
         refreshToken: REFRESH_TOKEN,
@@ -72,19 +72,19 @@ async function sendAutoMail(list) {
     ];
 
     var mailcontent_1 =
-      "<table style='font-family: arial, sans-serif; border-collapse: collapse;width: 100%; margin-top: 20px;'>" +
+      "<table style='font-family: arial, sans-serif; border-collapse: collapse; margin-top: 20px;'>" +
       "<tr>" +
-      "<th style='border: 1px solid #dddddd; padding: 8px; width: 50% ;'>Name </th>" +
-      "<th style='border: 1px solid #dddddd; padding: 8px; width: 50% ;'>Qualified </th>" +
+      "<th style='border: 1px solid #dddddd; padding: 8px; text-align: left;'>Name</th>" +
+      "<th style='border: 1px solid #dddddd; padding: 8px;  text-align: left;'>Number of rewards to be issued</th>" +
       "</tr>";
 
     var mailcontent_2 = list.map(
       (item) =>
         "<tr>" +
-        "<td style='border: 1px solid #dddddd; padding: 8px; width: 50% ;'>" +
+        "<td style='border: 1px solid #dddddd; padding: 8px; '>" +
         item.name +
         "</td>" +
-        "<td style='border: 1px solid #dddddd; padding: 8px; width: 50% ;'>" +
+        "<td style='border: 1px solid #dddddd; padding: 8px; '>" +
         item.q +
         "</td>" +
         "</tr>"
@@ -102,16 +102,25 @@ async function sendAutoMail(list) {
       "count is:" + count + " and date is " + months[current.getMonth()]
     );
 
+    var htmlObject = "";
+    if (count > 0) {
+      htmlObject = `<div> Family Tax Review received a total of ${count} converted referrals for ${
+        months[current.getMonth()]
+      }.
+      The table below lists the people that need to be rewarded and how many rewards they needs to be issued. 
+       ${mailcontent_1 + mailcontent_2 + mailcontent_3} </div>`;
+    } else {
+      htmlObject = `There were no converted referrals for ${
+        months[current.getMonth()]
+      }. If you need help getting more referrals let us know. One of our experts will be happy to give you some advice.`;
+    }
+
     const mailOptions = {
-      from: "Saeed <najafisaeed@gmail.com>",
+      from: "Brian <automation@referral-factory.com>",
       to: "iesteghlal@gmail.com",
       subject: "It's time to reward users! [Referral Factory]",
       text: `Hello Brian`,
-      html: `<div> Family Tax Review received a total of ${count} converted referrals for ${
-        months[current.getMonth()]
-      } \n.
-      The table below contains the details of who needs to be issued with a reward and how many rewards they needs to be paid out. 
-       ${mailcontent_1 + mailcontent_2 + mailcontent_3} </div>`,
+      html: htmlObject,
     };
 
     const result = await transport.sendMail(mailOptions);
