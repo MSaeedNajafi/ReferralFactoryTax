@@ -98,21 +98,16 @@ async function sendAutoMail(list) {
     );
 
     var current = new Date();
-    console.log(
-      "count is:" + count + " and date is " + months[current.getMonth()]
-    );
+    var today = months[current.getMonth()];
+    console.log("count is:" + count + " and date is " + today);
 
     var htmlObject = "";
     if (count > 0) {
-      htmlObject = `<div> Family Tax Review received a total of ${count} converted referrals for ${
-        months[current.getMonth()]
-      }.
+      htmlObject = `<div> Family Tax Review received a total of ${count} converted referrals for ${today}.
       The table below lists the people that need to be rewarded and how many rewards they needs to be issued. 
        ${mailcontent_1 + mailcontent_2 + mailcontent_3} </div>`;
     } else {
-      htmlObject = `There were no converted referrals for ${
-        months[current.getMonth()]
-      }. If you need help getting more referrals let us know. One of our experts will be happy to give you some advice.`;
+      htmlObject = `There were no converted referrals for ${today}. If you need help getting more referrals let us know. One of our experts will be happy to give you some advice.`;
     }
 
     const mailOptions = {

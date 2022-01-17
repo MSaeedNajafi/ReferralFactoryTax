@@ -548,9 +548,10 @@ function App() {
           let obj = { id: "", name: "", q: 0 };
           obj.id = usersEmailSend[i].id;
           obj.name =
-            // usersEmailSend[i].id +
-            // " | " +
-            usersEmailSend[i].first_name + " | " + usersEmailSend[i].email;
+            usersEmailSend[i].first_name +
+            " < " +
+            usersEmailSend[i].email +
+            " > ";
           obj.q = usersEmailSend.filter(
             (user) => user.referrer_id == usersEmailSend[i].id && user.qualified
           ).length;
