@@ -90,6 +90,9 @@ async function sendAutoMail(list) {
         "</tr>"
     );
 
+    mailcontent_2 = mailcontent_2 + "";
+    mailcontent_2 = mailcontent_2.replace(/,/g, "");
+
     var mailcontent_3 = "</table>";
 
     var count = list.reduce(
@@ -99,7 +102,9 @@ async function sendAutoMail(list) {
 
     var current = new Date();
     var today = months[current.getMonth()];
-    console.log("count is:" + count + " and date is " + today);
+    console.log(
+      "count is:" + count + " and date is " + today + " => " + mailcontent_2
+    );
 
     var htmlObject = "";
     if (count > 0) {

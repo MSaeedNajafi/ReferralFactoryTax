@@ -69,6 +69,11 @@ function App() {
   const [usersEmailSend, setUsersEmailSend] = useState([]);
   const [htmlEmailContent, setHtmlEmailContent] = useState([]);
 
+  const [showEmailSection, setSHowEmailSection] = useState(false);
+  const [mailContent, setMailContent] = useState(false);
+
+  const [openModalQualified, setOpenModalQualified] = useState(false);
+
   useEffect(() => {
     console.log(users);
   }, [users]);
@@ -80,6 +85,10 @@ function App() {
   useEffect(() => {
     console.log("Email: users->", usersEmailSend);
   }, [usersEmailSend]);
+
+  useEffect(async () => {
+    await showEmail();
+  }, [id]);
 
   const handleClose = () => {
     setOpen(false);
@@ -99,11 +108,6 @@ function App() {
   const handleCloseModal = () => {
     setOpenModal(false);
   };
-
-  const [showEmailSection, setSHowEmailSection] = useState(false);
-  const [mailContent, setMailContent] = useState(false);
-
-  const [openModalQualified, setOpenModalQualified] = useState(false);
 
   const handleClickOpenModalQualified = () => {
     setOpenModalQualified(true);
@@ -133,6 +137,9 @@ function App() {
         setStart(data.data.start_at);
         setStatus(data.data.status);
         setURL(data.data.url);
+
+        //===new===
+        setSHowEmailSection(true);
       })
       .catch((error) => {
         setLoading(false);
@@ -565,19 +572,34 @@ function App() {
 
     return (
       <>
-        {list.map((li) => (
-          <Grid item xs={12} key={li.id}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              <p>{li.name}</p>
-              <p>{li.q}</p>
-            </div>
-          </Grid>
+        {list.map((li, index) => (
+          <>
+            <Grid item xs={12} key={li.id} style={{}}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <p>{li.name}</p>
+                <p>{li.q}</p>
+              </div>
+            </Grid>
+
+            {index == list.length - 1 ? null : (
+              <>
+                <Divider style={{ width: "100%" }} />
+              </>
+            )}
+          </>
         ))}
+        {list.length > 0 ? (
+          <></>
+        ) : (
+          <>
+            <p>There are no qualified users for this month.</p>
+          </>
+        )}
         <Button variant="contained" onClick={() => sendEmaiLwithThisInfo(list)}>
           Send Email
         </Button>
@@ -934,8 +956,8 @@ function App() {
                 <Divider style={{ width: "100%" }} />
 
                 {/* Seding Email Section */}
-                <Grid item xs={12} style={{ padding: 20 }}>
-                  {!showEmailSection && (
+                <>
+                  {/* {!showEmailSection && (
                     <Button
                       type="submit"
                       variant="contained"
@@ -947,10 +969,14 @@ function App() {
                     >
                       Show
                     </Button>
-                  )}
+                  )} */}
                   {showEmailSection && (
-                    <>
-                      <Grid item xs={12} style={{ padding: 20 }}>
+                    <Grid item xs={12} style={{ padding: 20 }}>
+                      <Grid
+                        item
+                        xs={12}
+                        style={{ padding: 20, border: "1px solid grey" }}
+                      >
                         <Button
                           type="submit"
                           variant="contained"
@@ -959,11 +985,11 @@ function App() {
                           }}
                           // style={{ width: "100%" }}
                         >
-                          Show Email Content
+                          Update Email Content
                         </Button>
                         {mailContent && <>{showEmailConent()}</>}
                       </Grid>
-                      <Button
+                      {/* <Button
                         type="submit"
                         variant="contained"
                         onClick={() => {
@@ -973,10 +999,10 @@ function App() {
                         style={{ width: "100%" }}
                       >
                         Hide
-                      </Button>
-                    </>
+                      </Button> */}
+                    </Grid>
                   )}
-                </Grid>
+                </>
               </Grid>
             </Box>
           </Collapse>
