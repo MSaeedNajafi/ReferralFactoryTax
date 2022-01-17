@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
-import CircularProgress from "@mui/material/CircularProgress";
 import Link from "@mui/material/Link";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -66,6 +67,7 @@ function App() {
     "December",
   ];
   const [usersEmailSend, setUsersEmailSend] = useState([]);
+  const [htmlEmailContent, setHtmlEmailContent] = useState([]);
 
   useEffect(() => {
     console.log(users);
@@ -523,6 +525,67 @@ function App() {
     setMailContent(true);
   };
 
+  const sendEmaiLwithThisInfo = async (list) => {
+    console.log(list);
+
+    const response = await axios.post("http://localhost:8000/sendemail", {
+      list,
+    });
+
+    console.log("response--> ", response.data);
+  };
+
+  const showEmailConent = () => {
+    const list = [];
+    let index = 0;
+
+    for (let i = 0; i < usersEmailSend.length; i++) {
+      for (let j = 0; j < usersEmailSend.length; j++) {
+        if (
+          usersEmailSend[i].id == usersEmailSend[j].referrer_id &&
+          usersEmailSend[j].qualified
+        ) {
+          let obj = { id: "", name: "", q: 0 };
+          obj.id = usersEmailSend[i].id;
+          obj.name =
+            usersEmailSend[i].id +
+            " | " +
+            usersEmailSend[i].first_name +
+            " | " +
+            usersEmailSend[i].email;
+          obj.q = usersEmailSend.filter(
+            (user) => user.referrer_id == usersEmailSend[i].id && user.qualified
+          ).length;
+
+          list[index] = obj;
+          index++;
+          break;
+        }
+      }
+    }
+
+    return (
+      <>
+        {list.map((li) => (
+          <Grid item xs={12} key={li.id}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <p>{li.name}</p>
+              <p>{li.q}</p>
+            </div>
+          </Grid>
+        ))}
+        <Button variant="contained" onClick={() => sendEmaiLwithThisInfo(list)}>
+          Send Email
+        </Button>
+      </>
+    );
+  };
+
   return (
     <Grid
       container
@@ -582,7 +645,7 @@ function App() {
 
                 <Divider style={{ width: "100%" }} />
 
-                {/* Campaign information section  */}
+                {/* Campaign information and user section  */}
                 <Grid item xs={12} style={{ padding: code ? 20 : 0 }}>
                   {code && (
                     <div style={{ border: "1px solid grey", padding: 20 }}>
@@ -871,7 +934,7 @@ function App() {
 
                 <Divider style={{ width: "100%" }} />
 
-                {/* Campaign users section */}
+                {/* Seding Email Section */}
                 <Grid item xs={12} style={{ padding: 20 }}>
                   {!showEmailSection && (
                     <Button
@@ -897,45 +960,9 @@ function App() {
                           }}
                           // style={{ width: "100%" }}
                         >
-                          Show Email
+                          Show Email Content
                         </Button>
-                        {mailContent && (
-                          <>
-                            {usersEmailSend.map(
-                              (u) =>
-                                // u.qualified ? (
-                                usersEmailSend.filter(
-                                  (user) =>
-                                    user.referrer_id == u.id && user.qualified
-                                ).length > 0 ? (
-                                  <>
-                                    <Grid item xs={12} key={u.id}>
-                                      <div
-                                        style={{
-                                          display: "flex",
-                                          justifyContent: "space-between",
-                                        }}
-                                      >
-                                        <p>
-                                          {u.id} - {u.first_name} -{u.email}
-                                        </p>
-                                        <p>
-                                          {
-                                            usersEmailSend.filter(
-                                              (user) =>
-                                                user.referrer_id == u.id &&
-                                                user.qualified
-                                            ).length
-                                          }
-                                        </p>
-                                      </div>
-                                    </Grid>
-                                  </>
-                                ) : null
-                              // ) : null
-                            )}
-                          </>
-                        )}
+                        {mailContent && <>{showEmailConent()}</>}
                       </Grid>
                       <Button
                         type="submit"
@@ -962,9 +989,34 @@ function App() {
 
 export default App;
 
-// console.log(
-//   "->",
-//   users.filter(
-//     (u) => user.referrer_id == u.id
-//   )git
-// )
+{
+  /* {usersEmailSend.map(
+          (u) =>
+            usersEmailSend.filter(
+              (user) => user.referrer_id == u.id && user.qualified
+            ).length > 0 ? (
+              <>
+                <Grid item xs={12} key={u.id}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <p>
+                      {u.id} - {u.first_name} - {u.email}
+                    </p>
+                    <p>
+                      {
+                        usersEmailSend.filter(
+                          (user) => user.referrer_id == u.id && user.qualified
+                        ).length
+                      }
+                    </p>
+                  </div>
+                </Grid>
+              </>
+            ) : null
+          // ) : null
+        )} */
+}
