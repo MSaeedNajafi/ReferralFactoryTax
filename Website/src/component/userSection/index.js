@@ -45,7 +45,7 @@ function UserSection(props) {
   ];
 
   useEffect(() => {
-    console.log("ysers->", props.users);
+    console.log("users->", props.users);
   }, [props.users]);
 
   useEffect(() => {

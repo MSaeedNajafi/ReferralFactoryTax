@@ -221,7 +221,7 @@ function App() {
                       </div>
                       <br />
 
-                      {/* User Details Section */}
+                      {/* User Detailsgi Section */}
                       <UserSection
                         id={id}
                         code={code}

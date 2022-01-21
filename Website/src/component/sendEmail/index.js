@@ -90,21 +90,40 @@ function EmailSection(props) {
                 <p>{li.q}</p>
               </div>
             </Grid>
+            <Divider style={{ width: "100%" }} />
 
+            {/* 
             {index == list.length - 1 ? null : (
               <>
                 <Divider style={{ width: "100%" }} />
               </>
-            )}
+            )} */}
           </>
         ))}
+
         {list.length > 0 ? (
-          <></>
+          <>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <p>Total Qualified</p>
+              <p style={{ fontWeight: "bold" }}>
+                {list.reduce(
+                  (total, currentValue) => (total = total + currentValue.q),
+                  0
+                )}
+              </p>
+            </div>
+          </>
         ) : (
           <>
             <p>There are no qualified users for this month.</p>
           </>
         )}
+
         <Button variant="contained" onClick={() => sendEmaiLwithThisInfo(list)}>
           Send Email
         </Button>
