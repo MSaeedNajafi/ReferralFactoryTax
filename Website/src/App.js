@@ -155,7 +155,7 @@ function App() {
       headers: new Headers({
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        with: "all",
+        with: "campaign",
       }),
     })
       .then((res) => res.json())
