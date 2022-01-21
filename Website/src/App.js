@@ -65,8 +65,6 @@ function App() {
         setStart(data.data.start_at);
         setStatus(data.data.status);
         setURL(data.data.url);
-
-        //===new===
         setSHowEmailSection(true);
       })
       .catch((error) => {
@@ -175,7 +173,6 @@ function App() {
                       <UserSection
                         id={id}
                         code={code}
-                        // toke={token}
                         open={open}
                         users={users}
                         setOpen={setOpen}

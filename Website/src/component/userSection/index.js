@@ -68,6 +68,7 @@ function UserSection(props) {
     setOpenModalQualified(false);
   };
 
+  //fetch a user
   const handleClickOpen = async (id) => {
     // console.log(id);
     await fetch(`https://referral-factory.com/api/v1/users/${id}`, {
@@ -374,7 +375,6 @@ function UserSection(props) {
           await console.log("========");
           await console.log(data);
           // alert(data.message);
-
           await console.log("========");
         })
         .catch((error) => {
@@ -394,7 +394,7 @@ function UserSection(props) {
         .then(async (data) => {
           await console.log("========");
           await console.log(data);
-
+          // alert(data.message);
           await console.log("========");
         })
         .catch((error) => {
@@ -409,7 +409,6 @@ function UserSection(props) {
     var d = new Date(date);
     // console.log(d);
     // console.log(month[d.getMonth()]);
-
     // console.log("=========");
     return months[d.getMonth()];
   };
