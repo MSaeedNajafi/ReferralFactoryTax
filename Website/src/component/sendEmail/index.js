@@ -6,6 +6,9 @@ import { Button, Divider, Grid } from "@mui/material";
 function EmailSection(props) {
   const [usersEmailSend, setUsersEmailSend] = useState([]);
   const [mailContent, setMailContent] = useState(false);
+  const [token, setToken] = useState(
+    "aOIKFDPV2GVd7lvbQCz1t08sgvJto5N0dCWLaACKTxypWpsnGJjoDPtQ8SjXTtc7gCCc1xkkPYHLpQif"
+  );
 
   useEffect(async () => {
     await showEmail();
@@ -20,7 +23,7 @@ function EmailSection(props) {
       method: "GET",
       headers: new Headers({
         "Content-Type": "application/json",
-        Authorization: `Bearer ${props.token}`,
+        Authorization: `Bearer ${token}`,
       }),
     })
       .then((res) => res.json())

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -7,32 +6,16 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Link from "@mui/material/Link";
 import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import Divider from "@mui/material/Divider";
-
-import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import Modal from "@mui/material/Modal";
 
 import "./App.css";
-import { LocalLaundryService } from "@mui/icons-material";
 import EmailSection from "./component/sendEmail";
+import UserSection from "./component/userSection";
 
 function App() {
   const [id, setID] = useState("");
@@ -49,47 +32,9 @@ function App() {
   const [status, setStatus] = useState(false);
   const [url, setURL] = useState("");
   const [users, setUsers] = useState([]);
-  const [referi, setReferi] = useState([]);
   const [open, setOpen] = useState(false);
   const [openListAdd, setOpenListAdd] = useState(false);
-  const [userId, setUserId] = useState("");
-  const months = [
-    "January",
-    "February ",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const [usersEmailSend, setUsersEmailSend] = useState([]);
-  const [htmlEmailContent, setHtmlEmailContent] = useState([]);
-
   const [showEmailSection, setSHowEmailSection] = useState(false);
-  const [mailContent, setMailContent] = useState(false);
-
-  const [openModalQualified, setOpenModalQualified] = useState(false);
-
-  useEffect(() => {
-    console.log(users);
-  }, [users]);
-
-  useEffect(() => {
-    console.log("referi->", referi);
-  }, [referi]);
-
-  useEffect(() => {
-    console.log("Email: users->", usersEmailSend);
-  }, [usersEmailSend]);
-
-  useEffect(async () => {
-    await showEmail();
-  }, [id]);
 
   const handleClose = () => {
     setOpen(false);
@@ -99,25 +44,6 @@ function App() {
     setOpenListAdd(!openListAdd);
   };
 
-  //============
-  const [openModal, setOpenModal] = useState(false);
-
-  const handleClickOpenModal = () => {
-    setOpenModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
-
-  const handleClickOpenModalQualified = () => {
-    setOpenModalQualified(true);
-  };
-
-  const handleCloseModalQualified = () => {
-    setOpenModalQualified(false);
-  };
-  //============
   const handleSubmit = async () => {
     setLoading(true);
     await fetch(`https://referral-factory.com/api/v1/campaigns/${id}`, {
@@ -166,446 +92,6 @@ function App() {
       .catch((error) => {
         console.log(error);
       });
-  };
-
-  const updateUser = async (id, str) => {
-    console.log("user id: ", id);
-
-    if (str) {
-      console.log("User is qualified ");
-      await fetch(`https://referral-factory.com/api/v1/users/${id}`, {
-        method: "PUT",
-        headers: new Headers({
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${token}`,
-        }),
-        body: `qualified=0&select=id`,
-      })
-        .then((res) => res.json())
-        .then(async (data) => {
-          await console.log("========");
-          await console.log(data);
-          // alert(data.message);
-
-          await console.log("========");
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    } else {
-      console.log("User is not qualified ");
-      await fetch(`https://referral-factory.com/api/v1/users/${id}`, {
-        method: "PUT",
-        headers: new Headers({
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${token}`,
-        }),
-        body: `qualified=1&select=id`,
-      })
-        .then((res) => res.json())
-        .then(async (data) => {
-          await console.log("========");
-          await console.log(data);
-
-          await console.log("========");
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-    handleUsers(id);
-  };
-
-  const handleClickOpen = async (id) => {
-    // console.log(id);
-    await fetch(`https://referral-factory.com/api/v1/users/${id}`, {
-      method: "GET",
-      headers: new Headers({
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      }),
-    })
-      .then((res) => res.json())
-      .then(async (data) => {
-        setReferi(data.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    setOpen(true);
-  };
-
-  const changeDate = (date) => {
-    // console.log(date);
-    var d = new Date(date);
-    // console.log(d);
-    // console.log(month[d.getMonth()]);
-
-    // console.log("=========");
-    return months[d.getMonth()];
-  };
-
-  const showUsersWithConversion = (id) => {
-    return (
-      <>
-        {users.map((u) =>
-          u.referrer_id == id && u.qualified ? (
-            // <div key={Math.floor(Math.random() * 100)}>
-            <>
-              <Button
-                variant="text"
-                onClick={() => handleClickOpen(u.id)}
-                key={Math.floor(Math.random() * 100)}
-              >
-                {u.first_name}
-              </Button>
-              <Dialog
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-              >
-                <DialogTitle id="alert-dialog-title">
-                  {"User Information"}
-                </DialogTitle>
-                <DialogContent>
-                  <DialogContentText
-                    id="alert-dialog-description"
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      // alignContent: "center",
-                    }}
-                  >
-                    <>
-                      <Typography variant="button" display="block" gutterBottom>
-                        id
-                      </Typography>
-                      <Typography
-                        variant="button"
-                        display="block"
-                        style={{
-                          fontWeight: "bold",
-                        }}
-                        gutterBottom
-                      >
-                        {referi.id}
-                      </Typography>
-                    </>
-
-                    <>
-                      <Typography variant="button" display="block" gutterBottom>
-                        name
-                      </Typography>
-                      <Typography
-                        variant="button"
-                        display="block"
-                        style={{
-                          fontWeight: "bold",
-                        }}
-                        gutterBottom
-                      >
-                        {referi.first_name}
-                      </Typography>
-                    </>
-
-                    <>
-                      <Typography
-                        variant="button"
-                        display="block"
-                        style={{
-                          fontWeight: "bold",
-                        }}
-                        gutterBottom
-                      >
-                        {referi.email}
-                      </Typography>
-                    </>
-
-                    <>
-                      <Link href={referi.url}>Click Here</Link>
-                    </>
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleClose} autoFocus>
-                    Ok
-                  </Button>
-                </DialogActions>
-              </Dialog>
-            </>
-          ) : // </div>
-          null
-        )}
-      </>
-    );
-  };
-
-  const showReachedUsers = (id) => {
-    // console.log(id, "->");
-    return (
-      <>
-        {users.map((u) =>
-          u.referrer_id == id ? (
-            // <div key={Math.floor(Math.random() * 100)}>
-            <>
-              <Button
-                variant="text"
-                onClick={() => handleClickOpen(u.id)}
-                key={Math.floor(Math.random() * 100)}
-              >
-                {u.first_name}
-              </Button>
-              <Dialog
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-              >
-                <DialogTitle id="alert-dialog-title">
-                  {"User Information"}
-                </DialogTitle>
-                <DialogContent>
-                  <DialogContentText
-                    id="alert-dialog-description"
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      // alignContent: "center",
-                    }}
-                  >
-                    <>
-                      <Typography variant="button" display="block" gutterBottom>
-                        id
-                      </Typography>
-                      <Typography
-                        variant="button"
-                        display="block"
-                        style={{
-                          fontWeight: "bold",
-                        }}
-                        gutterBottom
-                      >
-                        {referi.id}
-                      </Typography>
-                    </>
-
-                    <>
-                      <Typography variant="button" display="block" gutterBottom>
-                        name
-                      </Typography>
-                      <Typography
-                        variant="button"
-                        display="block"
-                        style={{
-                          fontWeight: "bold",
-                        }}
-                        gutterBottom
-                      >
-                        {referi.first_name}
-                      </Typography>
-                    </>
-                    <>
-                      <Typography variant="button" display="block" gutterBottom>
-                        qualified
-                      </Typography>
-                      <Typography
-                        variant="button"
-                        display="block"
-                        style={{
-                          fontWeight: "bold",
-                        }}
-                        gutterBottom
-                      >
-                        {referi.qualified + " "}
-                      </Typography>
-                    </>
-
-                    <>
-                      <Typography
-                        variant="button"
-                        display="block"
-                        style={{
-                          fontWeight: "bold",
-                        }}
-                        gutterBottom
-                      >
-                        {referi.email}
-                      </Typography>
-                    </>
-
-                    <>
-                      <Link href={referi.url}>Click Here</Link>
-                    </>
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={handleClose} autoFocus>
-                    Ok
-                  </Button>
-                </DialogActions>
-              </Dialog>
-            </>
-          ) : // </div>
-          null
-        )}
-      </>
-    );
-  };
-
-  const showName = (id) => {
-    const theUser = users.filter((u) => id == u.id);
-
-    if (theUser.length > 0) {
-      return theUser[0].first_name;
-    }
-    return "-";
-  };
-
-  const showReachedUsersInModal = (id) => {
-    return (
-      <>
-        <Dialog
-          open={openModal}
-          onClose={handleCloseModal}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{"Users Reached"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {showReachedUsers(id)}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseModal} autoFocus>
-              Ok
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </>
-    );
-  };
-
-  const showQualifiedUsersInModal = (id) => {
-    return (
-      <>
-        <Dialog
-          open={openModalQualified}
-          onClose={handleCloseModalQualified}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{"Users Qualified"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {showUsersWithConversion(id)}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseModalQualified} autoFocus>
-              Ok
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </>
-    );
-  };
-
-  const showEmail = async () => {
-    await fetch(`https://referral-factory.com/api/v1/users/`, {
-      method: "GET",
-      headers: new Headers({
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      }),
-    })
-      .then((res) => res.json())
-      .then(async (data) => {
-        console.log(data.data);
-        setUsersEmailSend(data.data.filter((u) => id == u.campaign_id));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    setMailContent(true);
-  };
-
-  const sendEmaiLwithThisInfo = async (list) => {
-    console.log(list);
-
-    const response = await axios.post("http://localhost:8000/sendemail", {
-      list,
-    });
-
-    console.log("response--> ", response.data);
-  };
-
-  const showEmailConent = () => {
-    const list = [];
-    let index = 0;
-
-    for (let i = 0; i < usersEmailSend.length; i++) {
-      for (let j = 0; j < usersEmailSend.length; j++) {
-        if (
-          usersEmailSend[i].id == usersEmailSend[j].referrer_id &&
-          usersEmailSend[j].qualified
-        ) {
-          let obj = { id: "", name: "", q: 0 };
-          obj.id = usersEmailSend[i].id;
-          obj.name =
-            usersEmailSend[i].first_name +
-            " < " +
-            usersEmailSend[i].email +
-            " > ";
-          obj.q = usersEmailSend.filter(
-            (user) => user.referrer_id == usersEmailSend[i].id && user.qualified
-          ).length;
-
-          list[index] = obj;
-          index++;
-          break;
-        }
-      }
-    }
-
-    return (
-      <>
-        {list.map((li, index) => (
-          <>
-            <Grid item xs={12} key={li.id} style={{}}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                }}
-              >
-                <p>{li.name}</p>
-                <p>{li.q}</p>
-              </div>
-            </Grid>
-
-            {index == list.length - 1 ? null : (
-              <>
-                <Divider style={{ width: "100%" }} />
-              </>
-            )}
-          </>
-        ))}
-        {list.length > 0 ? (
-          <></>
-        ) : (
-          <>
-            <p>There are no qualified users for this month.</p>
-          </>
-        )}
-        <Button variant="contained" onClick={() => sendEmaiLwithThisInfo(list)}>
-          Send Email
-        </Button>
-      </>
-    );
   };
 
   return (
@@ -690,18 +176,7 @@ function App() {
                         }}
                       >
                         Campaign Code:
-                        <span
-                          style={
-                            {
-                              // backgroundColor: "#e84a4a",
-                              // padding: 5,
-                              // borderRadius: 25,
-                              // fontSize: 12,
-                            }
-                          }
-                        >
-                          {code}
-                        </span>
+                        <span style={{}}>{code}</span>
                       </div>
                       <br />
                       <div
@@ -743,213 +218,20 @@ function App() {
                         >
                           get users
                         </Button>
-                        {/* <Button variant="outlined" onClick={() => handleUsers("campaign")}>
-                      Submit with Campaign
-                    </Button>
-                    <Button variant="outlined" onClick={() => handleUsers("referrer")}>
-                      Submit with Referred
-                    </Button> */}
                       </div>
                       <br />
-                      <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>#</TableCell>
-                              <TableCell>Id</TableCell>
-                              {/* <TableCell>Campaign ID</TableCell> */}
-                              <TableCell>Name</TableCell>
-                              <TableCell align="left">Qualified</TableCell>
-                              <TableCell align="left">Email</TableCell>
-                              <TableCell align="left">Source</TableCell>
-                              <TableCell align="left">Referrer Id</TableCell>
-                              <TableCell align="left">Referrer Name</TableCell>
-                              <TableCell align="left">Url</TableCell>
-                              <TableCell align="left">Reached</TableCell>
-                              {/* <TableCell align="left">Reached To</TableCell> */}
-                              <TableCell align="left">Qualified</TableCell>
-                              {/* <TableCell align="left">Qualified</TableCell> */}
-                              <TableCell align="left">Date Created</TableCell>
-                              <TableCell align="left">Action</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          {users.map((user, index) =>
-                            user.campaign_id == id ? (
-                              <TableBody key={user.id}>
-                                <TableRow
-                                  sx={{
-                                    "&:last-child td, &:last-child th": {
-                                      border: 0,
-                                    },
-                                  }}
-                                  style={{
-                                    backgroundColor: !user.referrer_id
-                                      ? "white"
-                                      : "#a9c1f9",
-                                  }}
-                                >
-                                  <TableCell component="th" scope="row">
-                                    {index + 1}
-                                  </TableCell>
-                                  <TableCell component="th" scope="row">
-                                    {user.id}
-                                  </TableCell>
-                                  {/* <TableCell component="th" scope="row">
-                                  {user.campaign_id}
-                                </TableCell> */}
-                                  <TableCell component="th" scope="row">
-                                    {user.first_name}
-                                  </TableCell>
-                                  <TableCell component="th" scope="row">
-                                    {user.qualified + ""}
-                                  </TableCell>
-                                  <TableCell align="left">
-                                    {user.email}
-                                  </TableCell>
-                                  <TableCell align="left">
-                                    {user.source}
-                                  </TableCell>
-                                  <TableCell align="left">
-                                    {!user.referrer_id ? "-" : user.referrer_id}
-                                  </TableCell>
-                                  <TableCell align="left">
-                                    {showName(user.referrer_id)}
-                                  </TableCell>
-                                  <TableCell align="left">
-                                    <Link href={user.url}>{user.url}</Link>
-                                  </TableCell>
-                                  <TableCell align="left">
-                                    {users.filter(
-                                      (u) => u.referrer_id == user.id
-                                    ).length > 0 ? (
-                                      <>
-                                        <Button
-                                          onClick={() => {
-                                            setUserId(user.id);
-                                            handleClickOpenModal();
-                                          }}
-                                          variant="outlined"
-                                        >
-                                          {
-                                            users.filter(
-                                              (u) => u.referrer_id == user.id
-                                            ).length
-                                          }
-                                        </Button>
-                                        {showReachedUsersInModal(userId)}
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Button disabled variant="outlined">
-                                          {
-                                            users.filter(
-                                              (u) => u.referrer_id == user.id
-                                            ).length
-                                          }
-                                        </Button>
-                                      </>
-                                    )}
-                                  </TableCell>
-                                  {/* <TableCell
-                                    align="left"
-                                    style={{ display: "flex" }}
-                                    id="referes"
-                                  >
-                                    {showReachedUsers(user.id)}
-                                  </TableCell> */}
 
-                                  <TableCell align="left">
-                                    {/* {
-                                      users.filter(
-                                        (u) =>
-                                          u.referrer_id == user.id &&
-                                          u.qualified
-                                      ).length
-                                    } */}
-                                    {users.filter(
-                                      (u) =>
-                                        u.referrer_id == user.id && u.qualified
-                                    ).length > 0 ? (
-                                      <>
-                                        <Button
-                                          onClick={() => {
-                                            setUserId(user.id);
-                                            handleClickOpenModalQualified();
-                                          }}
-                                          variant="outlined"
-                                        >
-                                          {
-                                            users.filter(
-                                              (u) =>
-                                                u.referrer_id == user.id &&
-                                                u.qualified
-                                            ).length
-                                          }
-                                        </Button>
-                                        {showQualifiedUsersInModal(userId)}
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Button disabled variant="outlined">
-                                          {
-                                            users.filter(
-                                              (u) =>
-                                                u.referrer_id == user.id &&
-                                                u.qualified
-                                            ).length
-                                          }
-                                        </Button>
-                                      </>
-                                    )}
-                                  </TableCell>
-                                  {/* <TableCell
-                                    align="left"
-                                    style={{
-                                      display: "flex",
-                                    }}
-                                  >
-                                    {showUsersWithConversion(user.id)}
-                                  </TableCell> */}
-                                  <TableCell align="left">
-                                    {changeDate(user.date)}
-                                  </TableCell>
-                                  {/* <TableCell>
-                                    {users.filter(
-                                      (u) => u.referrer_id == user.id
-                                    ).length > 0 ? (
-                                      <>
-                                        <Button
-                                          onClick={() => {
-                                            setUserId(user.id);
-                                            handleClickOpenModal();
-                                          }}
-                                          variant="outlined"
-                                        >
-                                          Reached
-                                        </Button>
-                                        {showReachedUsersInModal(userId)}
-                                      </>
-                                    ) : (
-                                      "-"
-                                    )}
-                                  </TableCell> */}
-                                  <TableCell align="left" key={user.id}>
-                                    <Button
-                                      variant="contained"
-                                      onClick={() => {
-                                        setUserId(user.id);
-                                        updateUser(user.id, user.qualified);
-                                      }}
-                                    >
-                                      update
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              </TableBody>
-                            ) : null
-                          )}
-                        </Table>
-                      </TableContainer>
+                      {/* User Details Section */}
+                      <UserSection
+                        id={id}
+                        code={code}
+                        // toke={token}
+                        open={open}
+                        users={users}
+                        setOpen={setOpen}
+                        handleClose={handleClose}
+                        handleUsers={handleUsers}
+                      />
                     </div>
                   )}
                 </Grid>
@@ -957,9 +239,7 @@ function App() {
                 <Divider style={{ width: "100%" }} />
 
                 {/* Seding Email Section */}
-                <>
-                  {showEmailSection && <EmailSection id={id} token={token} />}
-                </>
+                <>{showEmailSection && <EmailSection id={id} />}</>
               </Grid>
             </Box>
           </Collapse>
@@ -970,35 +250,3 @@ function App() {
 }
 
 export default App;
-
-{
-  /* {usersEmailSend.map(
-          (u) =>
-            usersEmailSend.filter(
-              (user) => user.referrer_id == u.id && user.qualified
-            ).length > 0 ? (
-              <>
-                <Grid item xs={12} key={u.id}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <p>
-                      {u.id} - {u.first_name} - {u.email}
-                    </p>
-                    <p>
-                      {
-                        usersEmailSend.filter(
-                          (user) => user.referrer_id == u.id && user.qualified
-                        ).length
-                      }
-                    </p>
-                  </div>
-                </Grid>
-              </>
-            ) : null
-          // ) : null
-        )} */
-}
