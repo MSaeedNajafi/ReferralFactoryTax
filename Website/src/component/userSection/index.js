@@ -416,7 +416,11 @@ function UserSection(props) {
 
   return (
     <>
-      <Grid item xs={12} style={{ padding: props.code ? 20 : 0 }}>
+      <Grid
+        item
+        xs={12}
+        style={{ border: "1px solid grey", padding: props.code ? 20 : 0 }}
+      >
         {props.code && (
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">

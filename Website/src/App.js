@@ -16,6 +16,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import "./App.css";
 import EmailSection from "./component/sendEmail";
 import UserSection from "./component/userSection";
+import CampaignSection from "./component/campaignSection";
 
 function App() {
   const [id, setID] = useState("");
@@ -157,71 +158,20 @@ function App() {
                 <Grid item xs={12} style={{ padding: code ? 20 : 0 }}>
                   {code && (
                     <div style={{ border: "1px solid grey", padding: 20 }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        Campaign Name:
-                        <span style={{}}> {name}</span>
-                      </div>
+                      {/* Campaign Detail Section */}
+                      <CampaignSection
+                        name={name}
+                        code={code}
+                        reach={reach}
+                        url={url}
+                        handleUsers={handleUsers}
+                      />
+
                       <br />
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        Campaign Code:
-                        <span style={{}}>{code}</span>
-                      </div>
-                      <br />
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        How many people it has reached in total:
-                        <span
-                          style={
-                            {
-                              // fontWeight: "bold",
-                              // border: "1px solid grey",
-                              // padding: 5,
-                            }
-                          }
-                        >
-                          {reach}
-                        </span>
-                      </div>
-                      <br />
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        Link for the referal Factory:{" "}
-                        <Link href={url}>{url}</Link>
-                      </div>
-                      <br />
-                      <div>
-                        <Button
-                          variant="contained"
-                          onClick={() => handleUsers("all")}
-                        >
-                          get users
-                        </Button>
-                      </div>
+                      <Divider style={{ width: "100%" }} />
                       <br />
 
-                      {/* User Detailsgi Section */}
+                      {/* User Details Section */}
                       <UserSection
                         id={id}
                         code={code}
