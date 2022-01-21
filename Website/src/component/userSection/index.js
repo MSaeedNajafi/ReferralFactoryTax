@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-
 import {
   Button,
   Dialog,
@@ -20,6 +18,8 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+
+import { DataGrid, getGridStringOperators } from "@mui/x-data-grid";
 
 function UserSection(props) {
   const [userId, setUserId] = useState("");
@@ -413,8 +413,185 @@ function UserSection(props) {
     return months[d.getMonth()];
   };
 
-  return (
-    <>
+  const rows = [];
+
+  const showNumberOfReached = (uId) => {
+    console.log("------>", uId);
+    return (
+      <>
+        {props.users.filter((u) => u.referrer_id == uId).length > 0 ? (
+          <>
+            <Button
+              onClick={() => {
+                setUserId(uId);
+                handleClickOpenModal();
+              }}
+              variant="outlined"
+            >
+              {props.users.filter((u) => u.referrer_id == uId).length}
+            </Button>
+            {showReachedUsersInModal(userId)}
+          </>
+        ) : (
+          <>
+            <Button disabled variant="outlined">
+              {props.users.filter((u) => u.referrer_id == uId).length}
+            </Button>
+          </>
+        )}
+      </>
+    );
+  };
+
+  const justSHowReached = (uId) => {
+    return props.users.filter((u) => u.referrer_id == uId).length;
+  };
+
+  for (let i = 0; i < props.users.length; i++) {
+    if (props.users[i].campaign_id == props.id) {
+      let row = {
+        id: i + 1,
+        col1: i + 1,
+        col2: props.users[i].id,
+        col3: props.users[i].first_name,
+        col4: props.users[i].qualified,
+        col5: props.users[i].email,
+        col6: props.users[i].source,
+        col7: props.users[i].referrer_id,
+        col8: showName(props.users[i].referrer_id),
+        // col9: props.users[i].url,
+        col10: justSHowReached(props.users[i].id),
+        col11: props.users.filter(
+          (u) => u.referrer_id == props.users[i].id && u.qualified
+        ).length,
+        col12: changeDate(props.users[i].date),
+        // col13: <button>ss</button>,
+      };
+      rows[i] = row;
+    }
+  }
+
+  const [size, setSize] = useState(0);
+
+  const columns = [
+    { field: "col1", headerName: "#", width: 50 },
+    { field: "col2", headerName: "Id", width: 100 },
+    { field: "col3", headerName: "Name", width: 100 },
+    { field: "col4", headerName: "Qualified", width: 100 },
+    { field: "col5", headerName: "Email", width: 200 },
+    { field: "col6", headerName: "Source", width: 75 },
+    { field: "col7", headerName: "Referrer Id", width: 125 },
+    { field: "col8", headerName: "Referrer Name", width: 125 },
+    // { field: "col9", headerName: "Url", width: 300 },
+    {
+      field: "col10",
+      headerName: "Reached",
+      width: 150,
+      //   renderCell: (params) => {
+      //     const size = 0;
+      //     const onClick = (e) => {
+      //       e.stopPropagation(); // don't select this row after clicking
+      //       //   console.log("00000000000000000000");
+      //       //   console.log(
+      //       //     props.users.filter(
+      //       //       (u) => u.referrer_id == thisRow.col2 && thisRow.col4
+      //       //     ).length
+      //       //   );
+      //       //   console.log("00000000000000000000");
+      //       console.log("======================");
+
+      //       const api = params.api;
+      //       const thisRow = {};
+
+      //       api
+      //         .getAllColumns()
+      //         .filter((c) => c.field !== "__check__" && !!c)
+      //         .forEach(
+      //           (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
+      //         );
+
+      //       //   console.log("===> ", thisRow.col2, thisRow.col4);
+      //       console.log(params);
+      //       setUserId(thisRow.col2);
+      //       handleClickOpenModal();
+      //       //   return alert(JSON.stringify(thisRow, null, 4));
+      //       //   size = props.users.filter(
+      //       //     (u) => u.referrer_id == thisRow.col2 && thisRow.col4
+      //       //   ).length;
+      //       console.log(showReachedUsersInModal(userId));
+      //       console.log("======================");
+      //     };
+
+      //     // props.users.filter(
+      //     //     (u) => u.referrer_id == user.id
+      //     //   ).length;
+
+      //     return (
+      //       <>
+      //         <Button onClick={onClick} variant="outlined">
+      //           {size}
+      //         </Button>
+      //         {showReachedUsersInModal(userId)}
+      //       </>
+      //     );
+      //   },
+    },
+    { field: "col11", headerName: "Qualified", width: 150 },
+    { field: "col12", headerName: "Date Created", width: 150 },
+    {
+      field: "col13",
+      headerName: "Action",
+      width: 150,
+      sortable: false,
+      renderCell: (params) => {
+        const onClick = (e) => {
+          e.stopPropagation(); // don't select this row after clicking
+
+          const api = params.api;
+          const thisRow = {};
+
+          api
+            .getAllColumns()
+            .filter((c) => c.field !== "__check__" && !!c)
+            .forEach(
+              (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
+            );
+
+          console.log("---->", thisRow.col2, thisRow.col4);
+
+          setUserId(thisRow.col2);
+          updateUser(thisRow.col2, thisRow.col4);
+          //   return alert(JSON.stringify(thisRow, null, 4));
+        };
+
+        return (
+          <>
+            <Button variant="contained" onClick={onClick}>
+              update
+            </Button>
+          </>
+        );
+      },
+    },
+  ];
+
+  const Table1 = () => {
+    return (
+      <div
+        style={{
+          //   border: "1px solid grey",
+          height: 500,
+          width: "100%",
+          padding: props.code ? 20 : 0,
+        }}
+      >
+        <DataGrid rows={rows} columns={columns} />
+      </div>
+    );
+  };
+
+  const Table2 = () => {
+    return (
       <Grid
         item
         xs={12}
@@ -586,6 +763,13 @@ function UserSection(props) {
           </TableContainer>
         )}
       </Grid>
+    );
+  };
+
+  return (
+    <>
+      <Table1 />
+      {/* <Table2 /> */}
     </>
   );
 }
