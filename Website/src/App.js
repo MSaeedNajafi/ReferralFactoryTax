@@ -32,6 +32,7 @@ import Modal from "@mui/material/Modal";
 
 import "./App.css";
 import { LocalLaundryService } from "@mui/icons-material";
+import EmailSection from "./component/sendEmail";
 
 function App() {
   const [id, setID] = useState("");
@@ -957,51 +958,7 @@ function App() {
 
                 {/* Seding Email Section */}
                 <>
-                  {/* {!showEmailSection && (
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      onClick={() => {
-                        setSHowEmailSection(true);
-                      }}
-                      style={{ width: "100%" }}
-                      disabled={code.length == 0 ? true : false}
-                    >
-                      Show
-                    </Button>
-                  )} */}
-                  {showEmailSection && (
-                    <Grid item xs={12} style={{ padding: 20 }}>
-                      <Grid
-                        item
-                        xs={12}
-                        style={{ padding: 20, border: "1px solid grey" }}
-                      >
-                        <Button
-                          type="submit"
-                          variant="contained"
-                          onClick={() => {
-                            showEmail();
-                          }}
-                          // style={{ width: "100%" }}
-                        >
-                          Update Email Content
-                        </Button>
-                        {mailContent && <>{showEmailConent()}</>}
-                      </Grid>
-                      {/* <Button
-                        type="submit"
-                        variant="contained"
-                        onClick={() => {
-                          setSHowEmailSection(false);
-                          setMailContent(false);
-                        }}
-                        style={{ width: "100%" }}
-                      >
-                        Hide
-                      </Button> */}
-                    </Grid>
-                  )}
+                  {showEmailSection && <EmailSection id={id} token={token} />}
                 </>
               </Grid>
             </Box>
