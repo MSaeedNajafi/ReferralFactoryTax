@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
@@ -36,6 +36,9 @@ function App() {
   const [open, setOpen] = useState(false);
   const [openListAdd, setOpenListAdd] = useState(false);
   const [showEmailSection, setSHowEmailSection] = useState(false);
+  const [currentPageNr, setCurrentPageNr] = useState(0);
+  const [maxPageNr, setMaxageNr] = useState(0);
+  const [total, setToal] = useState(0);
 
   const handleClose = () => {
     setOpen(false);
@@ -44,6 +47,10 @@ function App() {
   const handleOpenListAdd = () => {
     setOpenListAdd(!openListAdd);
   };
+
+  // setTimeout(() => {
+  //   console.log("Hello, World!");
+  // }, 1000);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -56,7 +63,7 @@ function App() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data.data);
+        // console.log(data.data);
         setCode(data.data.code);
         setEnd(data.data.end);
         setLive(data.data.live);
@@ -81,17 +88,43 @@ function App() {
       headers: new Headers({
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        with: "campaign",
+        with: "all",
       }),
     })
       .then((res) => res.json())
       .then(async (data) => {
+        // console.log("---->", data);
+        console.log("----> meta", data.meta);
+        console.log("----> links", data.links);
+
+        setCurrentPageNr(data.meta.current_page);
+        setMaxageNr(data.meta.last_page);
+        setToal(data.meta.total);
+
+        // console.log("------> current page ", data.meta.current_page);
+        // console.log("------> last page ", data.meta.last_page);
+
+        // for (let i = currentPageNr; i <= MaxPageNr; i++) {
+        //   console.log(i);
+        // }
         setUsers(data.data);
       })
       .catch((error) => {
         console.log(error);
       });
   };
+
+  // useEffect(() => {
+  //   console.log("=> maxPageNr", maxPageNr);
+  // }, [maxPageNr]);
+
+  // useEffect(() => {
+  //   console.log("=> currentPageNr", currentPageNr);
+  // }, [currentPageNr]);
+
+  // useEffect(() => {
+  //   console.log("=> users ", users);
+  // }, [users]);
 
   return (
     <Grid
@@ -178,6 +211,9 @@ function App() {
                         setOpen={setOpen}
                         handleClose={handleClose}
                         handleUsers={handleUsers}
+                        total={total}
+                        currentPageNr={currentPageNr}
+                        maxPageNr={maxPageNr}
                       />
                     </div>
                   )}

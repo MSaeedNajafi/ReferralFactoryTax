@@ -21,14 +21,25 @@ import {
 
 import { DataGrid, getGridStringOperators } from "@mui/x-data-grid";
 
+import { usePagedData } from "./usePagedData";
+
 function UserSection(props) {
   const [userId, setUserId] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [openModalQualified, setOpenModalQualified] = useState(false);
-  const [referi, setReferi] = useState([]);
+  const [referi, setReferi] = useState();
+  const [page, setPage] = useState(props.currentPageNr);
+  const [maxPage, setMaxPage] = useState(props.maxPageNr);
+  const [users, setUsers] = useState(props.users);
   const [token, setToken] = useState(
     "aOIKFDPV2GVd7lvbQCz1t08sgvJto5N0dCWLaACKTxypWpsnGJjoDPtQ8SjXTtc7gCCc1xkkPYHLpQif"
   );
+  const [rowsState, setRowsState] = React.useState({
+    page: 1,
+    pageSize: 25,
+    rows: [],
+    loading: false,
+  });
   const months = [
     "January",
     "February ",
@@ -44,13 +55,125 @@ function UserSection(props) {
     "December",
   ];
 
-  useEffect(() => {
-    console.log("users->", props.users);
-  }, [props.users]);
+  // useEffect(() => {
+  //   console.log("< users--->", users);
+  // }, [users]);
+
+  const { rows, loading } = usePagedData(
+    props.id,
+    rowsState.page,
+    rowsState.pageSize
+  );
 
   useEffect(() => {
-    console.log("referi->", referi);
-  }, [referi]);
+    let active = true;
+
+    // console.log("here -->>>>>>", rows);
+
+    (async () => {
+      setRowsState((prev) => ({ ...prev, loading: true }));
+
+      if (!active) {
+        return;
+      }
+      setRowsState((prev) => ({ ...prev, loading: false, rows: rows }));
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [rowsState.page, rowsState.pageSize, rows]);
+
+  const fetchAllUsers = async (pageNumber) => {
+    console.log("----------------------------------");
+    console.log("page number: ", pageNumber);
+    console.log("----------------------------------");
+    await fetch(
+      `https://referral-factory.com/api/v1/users?page=${pageNumber}`,
+      {
+        method: "GET",
+        headers: new Headers({
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          with: "all",
+        }),
+      }
+    )
+      .then((res) => res.json())
+      .then(async (data) => {
+        // console.log("=================rows=================");
+        // console.log("---->", data);
+        // console.log("---->", data.data);
+        setUsers(data.data);
+        return data.data;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const fetchUser = async (url) => {
+    return fetch(url, {
+      method: "GET",
+      headers: new Headers({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        with: "all",
+      }),
+    }).then((res) => res.json());
+  };
+
+  useEffect(async () => {
+    console.log("+++++++++++++++++++");
+    await fetchAllUsersLiam();
+    console.log("+++++++++++++++++++");
+  }, [props.maxPageNr]);
+
+  const fetchAllUsersLiam = async () => {
+    // let resp = await fetchUser(`https://referral-factory.com/api/v1/users?page=0}`)
+    // get the page total out of the first respons
+    let totalPages = props.maxPageNr + 1;
+    console.log("totalPages ==> ", totalPages);
+
+    // //still have to add the rate limiter
+    const urls = Array.from(Array(totalPages).keys()).map(
+      (pageNo) => `https://referral-factory.com/api/v1/users?page=${pageNo}`
+    );
+
+    console.log(urls);
+    // Smart stuff to respect the page limit.
+    let allUsers = [];
+    // for (url in urls) {
+    //   //rateLimiter.wait()
+    //   let cutUsers = await fetchUser(url);
+    //   //add all the users together
+    //   allUsers += allUsers;
+    // }
+
+    return allUsers;
+    // await fetch(
+    //   `https://referral-factory.com/api/v1/users?page=${pageNumber}`,
+    //   {
+    //     method: "GET",
+    //     headers: new Headers({
+    //       "Content-Type": "application/json",
+    //       Authorization: `Bearer ${token}`,
+    //       with: "all",
+    //     }),
+    //   }
+    // )
+    //   .then((res) => res.json())
+    //   .then(async (data) => {
+    //     // console.log("=================rows=================");
+    //     // console.log("---->", data);
+    //     // console.log("---->", data.data);
+    //     setUsers(data.data);
+    //     return data.data;
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
+  };
 
   const handleClickOpenModal = () => {
     setOpenModal(true);
@@ -89,7 +212,7 @@ function UserSection(props) {
   };
 
   const showName = (id) => {
-    const theUser = props.users.filter((u) => id == u.id);
+    const theUser = users.filter((u) => id == u.id);
 
     if (theUser.length > 0) {
       return theUser[0].first_name;
@@ -101,7 +224,7 @@ function UserSection(props) {
     // console.log(id, "->");
     return (
       <>
-        {props.users.map((u) =>
+        {users.map((u) =>
           u.referrer_id == id ? (
             // <div key={Math.floor(Math.random() * 100)}>
             <>
@@ -263,7 +386,7 @@ function UserSection(props) {
   const showUsersWithConversion = (id) => {
     return (
       <>
-        {props.users.map((u) =>
+        {users.map((u) =>
           u.referrer_id == id && u.qualified ? (
             // <div key={Math.floor(Math.random() * 100)}>
             <>
@@ -413,13 +536,11 @@ function UserSection(props) {
     return months[d.getMonth()];
   };
 
-  const rows = [];
-
   const showNumberOfReached = (uId) => {
     console.log("------>", uId);
     return (
       <>
-        {props.users.filter((u) => u.referrer_id == uId).length > 0 ? (
+        {users.filter((u) => u.referrer_id == uId).length > 0 ? (
           <>
             <Button
               onClick={() => {
@@ -428,14 +549,14 @@ function UserSection(props) {
               }}
               variant="outlined"
             >
-              {props.users.filter((u) => u.referrer_id == uId).length}
+              {users.filter((u) => u.referrer_id == uId).length}
             </Button>
             {showReachedUsersInModal(userId)}
           </>
         ) : (
           <>
             <Button disabled variant="outlined">
-              {props.users.filter((u) => u.referrer_id == uId).length}
+              {users.filter((u) => u.referrer_id == uId).length}
             </Button>
           </>
         )}
@@ -447,132 +568,110 @@ function UserSection(props) {
     return props.users.filter((u) => u.referrer_id == uId).length;
   };
 
-  for (let i = 0; i < props.users.length; i++) {
-    if (props.users[i].campaign_id == props.id) {
-      let row = {
-        id: i + 1,
-        col1: i + 1,
-        col2: props.users[i].id,
-        col3: props.users[i].first_name,
-        col4: props.users[i].qualified,
-        col5: props.users[i].email,
-        col6: props.users[i].source,
-        col7: props.users[i].referrer_id,
-        col8: showName(props.users[i].referrer_id),
-        // col9: props.users[i].url,
-        col10: justSHowReached(props.users[i].id),
-        col11: props.users.filter(
-          (u) => u.referrer_id == props.users[i].id && u.qualified
-        ).length,
-        col12: changeDate(props.users[i].date),
-        // col13: <button>ss</button>,
-      };
-      rows[i] = row;
-    }
-  }
-
-  const [size, setSize] = useState(0);
-
   const columns = [
     { field: "col1", headerName: "#", width: 50 },
-    { field: "col2", headerName: "Id", width: 100 },
+    { field: "col2", headerName: "Id", width: 100, sortable: false },
     { field: "col3", headerName: "Name", width: 100 },
-    { field: "col4", headerName: "Qualified", width: 100 },
+    // { field: "col4", headerName: "Qualified", width: 100 },
     { field: "col5", headerName: "Email", width: 200 },
-    { field: "col6", headerName: "Source", width: 75 },
-    { field: "col7", headerName: "Referrer Id", width: 125 },
-    { field: "col8", headerName: "Referrer Name", width: 125 },
+    { field: "col6", headerName: "converted_referrals_count", width: 200 },
+    // { field: "col6", headerName: "Source", width: 75 },
+    // { field: "col7", headerName: "Referrer Id", width: 125 },
+    // { field: "col8", headerName: "Referrer Name", width: 125 },
     // { field: "col9", headerName: "Url", width: 300 },
-    {
-      field: "col10",
-      headerName: "Reached",
-      width: 150,
-      //   renderCell: (params) => {
-      //     const size = 0;
-      //     const onClick = (e) => {
-      //       e.stopPropagation(); // don't select this row after clicking
-      //       //   console.log("00000000000000000000");
-      //       //   console.log(
-      //       //     props.users.filter(
-      //       //       (u) => u.referrer_id == thisRow.col2 && thisRow.col4
-      //       //     ).length
-      //       //   );
-      //       //   console.log("00000000000000000000");
-      //       console.log("======================");
+    // {
+    //   field: "col10",
+    //   headerName: "Reached",
+    //   width: 150,
+    //   renderCell: (params) => {
+    //     const size = 0;
+    //     const onClick = (e) => {
+    //       e.stopPropagation(); // don't select this row after clicking
+    //       //   console.log("00000000000000000000");
+    //       //   console.log(
+    //       //     props.users.filter(
+    //       //       (u) => u.referrer_id == thisRow.col2 && thisRow.col4
+    //       //     ).length
+    //       //   );
+    //       //   console.log("00000000000000000000");
+    //       console.log("======================");
 
-      //       const api = params.api;
-      //       const thisRow = {};
+    //       const api = params.api;
+    //       const thisRow = {};
 
-      //       api
-      //         .getAllColumns()
-      //         .filter((c) => c.field !== "__check__" && !!c)
-      //         .forEach(
-      //           (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
-      //         );
+    //       api
+    //         .getAllColumns()
+    //         .filter((c) => c.field !== "__check__" && !!c)
+    //         .forEach(
+    //           (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
+    //         );
 
-      //       //   console.log("===> ", thisRow.col2, thisRow.col4);
-      //       console.log(params);
-      //       setUserId(thisRow.col2);
-      //       handleClickOpenModal();
-      //       //   return alert(JSON.stringify(thisRow, null, 4));
-      //       //   size = props.users.filter(
-      //       //     (u) => u.referrer_id == thisRow.col2 && thisRow.col4
-      //       //   ).length;
-      //       console.log(showReachedUsersInModal(userId));
-      //       console.log("======================");
-      //     };
+    //       //   console.log("===> ", thisRow.col2, thisRow.col4);
+    //       console.log(params);
+    //       setUserId(thisRow.col2);
+    //       handleClickOpenModal();
+    //       //   return alert(JSON.stringify(thisRow, null, 4));
+    //       //   size = props.users.filter(
+    //       //     (u) => u.referrer_id == thisRow.col2 && thisRow.col4
+    //       //   ).length;
+    //       console.log(showReachedUsersInModal(userId));
+    //       console.log("======================");
+    //     };
 
-      //     // props.users.filter(
-      //     //     (u) => u.referrer_id == user.id
-      //     //   ).length;
+    //     // props.users.filter(
+    //     //     (u) => u.referrer_id == user.id
+    //     //   ).length;
 
-      //     return (
-      //       <>
-      //         <Button onClick={onClick} variant="outlined">
-      //           {size}
-      //         </Button>
-      //         {showReachedUsersInModal(userId)}
-      //       </>
-      //     );
-      //   },
-    },
-    { field: "col11", headerName: "Qualified", width: 150 },
-    { field: "col12", headerName: "Date Created", width: 150 },
-    {
-      field: "col13",
-      headerName: "Action",
-      width: 150,
-      sortable: false,
-      renderCell: (params) => {
-        const onClick = (e) => {
-          e.stopPropagation(); // don't select this row after clicking
+    //     return (
+    //       <>
+    //         <Button onClick={onClick} variant="outlined">
+    //           {size}
+    //         </Button>
+    //         {showReachedUsersInModal(userId)}
+    //       </>
+    //     );
+    //   },
+    // },
+    // { field: "col11", headerName: "Qualified", width: 150 },
+    { field: "col12", headerName: "Date Converted", width: 150 },
+    // {
+    //   field: "col13",
+    //   headerName: "Action",
+    //   width: 150,
+    //   sortable: false,
+    //   filterable: false,
+    //   hideable: false,
 
-          const api = params.api;
-          const thisRow = {};
+    //   renderCell: (params) => {
+    //     const onClick = (e) => {
+    //       e.stopPropagation(); // don't select this row after clicking
 
-          api
-            .getAllColumns()
-            .filter((c) => c.field !== "__check__" && !!c)
-            .forEach(
-              (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
-            );
+    //       const api = params.api;
+    //       const thisRow = {};
 
-          console.log("---->", thisRow.col2, thisRow.col4);
+    //       api
+    //         .getAllColumns()
+    //         .filter((c) => c.field !== "__check__" && !!c)
+    //         .forEach(
+    //           (c) => (thisRow[c.field] = params.getValue(params.id, c.field))
+    //         );
 
-          setUserId(thisRow.col2);
-          updateUser(thisRow.col2, thisRow.col4);
-          //   return alert(JSON.stringify(thisRow, null, 4));
-        };
+    //       console.log("---->", thisRow.col2, thisRow.col4);
 
-        return (
-          <>
-            <Button variant="contained" onClick={onClick}>
-              update
-            </Button>
-          </>
-        );
-      },
-    },
+    //       setUserId(thisRow.col2);
+    //       updateUser(thisRow.col2, thisRow.col4);
+    //       //   return alert(JSON.stringify(thisRow, null, 4));
+    //     };
+
+    //     return (
+    //       <>
+    //         <Button variant="contained" onClick={onClick}>
+    //           update
+    //         </Button>
+    //       </>
+    //     );
+    //   },
+    // },
   ];
 
   const Table1 = () => {
@@ -585,7 +684,23 @@ function UserSection(props) {
           padding: props.code ? 20 : 0,
         }}
       >
-        <DataGrid rows={rows} columns={columns} />
+        <DataGrid
+          // rows={rows}
+          columns={columns}
+          pagination
+          rowCount={props.total}
+          paginationMode="server"
+          // pageSize={25}
+          rowsPerPageOptions={[25]}
+          {...rowsState}
+          onPageChange={(page) => {
+            // console.log("and page is ", page);
+            setRowsState((prev) => ({ ...prev, page }));
+          }}
+          onPageSizeChange={(pageSize) =>
+            setRowsState((prev) => ({ ...prev, pageSize }))
+          }
+        />
       </div>
     );
   };
@@ -620,7 +735,7 @@ function UserSection(props) {
                   <TableCell align="left">Action</TableCell>
                 </TableRow>
               </TableHead>
-              {props.users.map((user, index) =>
+              {users.map((user, index) =>
                 user.campaign_id == props.id ? (
                   <TableBody key={user.id}>
                     <TableRow
@@ -662,8 +777,8 @@ function UserSection(props) {
                         <Link href={user.url}>{user.url}</Link>
                       </TableCell>
                       <TableCell align="left">
-                        {props.users.filter((u) => u.referrer_id == user.id)
-                          .length > 0 ? (
+                        {users.filter((u) => u.referrer_id == user.id).length >
+                        0 ? (
                           <>
                             <Button
                               onClick={() => {
@@ -673,9 +788,8 @@ function UserSection(props) {
                               variant="outlined"
                             >
                               {
-                                props.users.filter(
-                                  (u) => u.referrer_id == user.id
-                                ).length
+                                users.filter((u) => u.referrer_id == user.id)
+                                  .length
                               }
                             </Button>
                             {showReachedUsersInModal(userId)}
@@ -684,9 +798,8 @@ function UserSection(props) {
                           <>
                             <Button disabled variant="outlined">
                               {
-                                props.users.filter(
-                                  (u) => u.referrer_id == user.id
-                                ).length
+                                users.filter((u) => u.referrer_id == user.id)
+                                  .length
                               }
                             </Button>
                           </>
@@ -708,7 +821,7 @@ function UserSection(props) {
                                           u.qualified
                                       ).length
                                     } */}
-                        {props.users.filter(
+                        {users.filter(
                           (u) => u.referrer_id == user.id && u.qualified
                         ).length > 0 ? (
                           <>
@@ -720,7 +833,7 @@ function UserSection(props) {
                               variant="outlined"
                             >
                               {
-                                props.users.filter(
+                                users.filter(
                                   (u) => u.referrer_id == user.id && u.qualified
                                 ).length
                               }
@@ -731,7 +844,7 @@ function UserSection(props) {
                           <>
                             <Button disabled variant="outlined">
                               {
-                                props.users.filter(
+                                users.filter(
                                   (u) => u.referrer_id == user.id && u.qualified
                                 ).length
                               }

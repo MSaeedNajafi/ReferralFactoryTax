@@ -15,7 +15,7 @@ function EmailSection(props) {
   }, [props.id]);
 
   useEffect(() => {
-    console.log("Email: users->", usersEmailSend);
+    // console.log("Email: users->", usersEmailSend);
   }, [usersEmailSend]);
 
   const showEmail = async () => {
@@ -28,7 +28,7 @@ function EmailSection(props) {
     })
       .then((res) => res.json())
       .then(async (data) => {
-        console.log(data.data);
+        // console.log(data.data);
         setUsersEmailSend(data.data.filter((u) => props.id == u.campaign_id));
       })
       .catch((error) => {
