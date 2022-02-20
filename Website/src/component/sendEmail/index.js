@@ -98,45 +98,85 @@ function EmailSection(props) {
       }
     }
 
-    // const sendEmail = (list) => {
-    //   console.log(list);
+    const sendEmail = (list) => {
+      console.log(list);
+      let msg = "";
 
-    //   var data = {
-    //     service_id: "taxfactory",
-    //     template_id: "template_o6tuwk3",
-    //     user_id: "user_GedSCCbvWhwAiBJbXnXJ7",
-    //     template_params: {
-    //       message: "Hi hon are you?",
-    //     },
-    //   };
+      if (list.length == 0) {
+        msg = `There were no converted referrals for ${
+          months[new Date().getMonth()]
+        }. If you need help getting more referrals let us know. One of our experts will be happy to give you some advice.`;
+      } else {
+        msg = list.map(
+          (item) =>
+            "[ " + item.name + ", rewards to be issued:" + item.q + " ]<br>"
+        );
+        var count = list.reduce(
+          (total, currentValue) => (total = total + currentValue.q),
+          0
+        );
 
-    //   fetch("https://api.emailjs.com/api/v1.0/email/send", {
-    //     type: "POST",
-    //     data: JSON.stringify(data),
-    //     contentType: "application/json",
-    //   })
-    //     // .then((res) => res.json())
-    //     .then(() => alert("Your mail is sent!"))
-    //     .catch((error) => {
-    //       console.log(error);
-    //     });
+        msg = `Family Tax Review received a total of ${count} converted referrals for ${
+          months[new Date().getMonth()]
+        }.<br> The table below lists the people that need to be rewarded and how many rewards they needs to be issued.<br> 
+         ${msg}`;
+      }
 
-    //   // emailjs
-    //   //   .sendForm(
-    //   //     "taxfactory",
-    //   //     "taxfactory",
-    //   //     form.current,
-    //   //     "user_GedSCCbvWhwAiBJbXnXJ7"
-    //   //   )
-    //   //   .then(
-    //   //     (result) => {
-    //   //       console.log(result.text);
-    //   //     },
-    //   //     (error) => {
-    //   //       console.log(error.text);
-    //   //     }
-    //   //   );
-    // };
+      var data = {
+        service_id: "taxfactory",
+        template_id: "template_o6tuwk3",
+        user_id: "user_GedSCCbvWhwAiBJbXnXJ7",
+        template_params: {
+          message: msg,
+        },
+      };
+
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      axios
+        .post(
+          "https://api.emailjs.com/api/v1.0/email/send",
+          JSON.stringify(data),
+          {
+            headers: headers,
+          }
+        )
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      // fetch("https://api.emailjs.com/api/v1.0/email/send", {
+      //   type: "POST",
+      //   data: JSON.stringify(data),
+      //   contentType: "application/json",
+      // })
+      //   // .then((res) => res.json())
+      //   .then(() => alert("Your mail is sent!"))
+      //   .catch((error) => {
+      //     console.log(error);
+      //   });
+
+      // emailjs
+      //   .sendForm(
+      //     "taxfactory",
+      //     "taxfactory",
+      //     form.current,
+      //     "user_GedSCCbvWhwAiBJbXnXJ7"
+      //   )
+      //   .then(
+      //     (result) => {
+      //       console.log(result.text);
+      //     },
+      //     (error) => {
+      //       console.log(error.text);
+      //     }
+      //   );
+    };
 
     const sendEmaiLwithThisInfo = async (list) => {
       // let res = " ";
@@ -234,9 +274,9 @@ function EmailSection(props) {
 
         <Button
           variant="contained"
-          onClick={
-            () => sendEmaiLwithThisInfo(list)
-            // sendEmail(list)
+          onClick={() =>
+            // sendEmaiLwithThisInfo(list)
+            sendEmail(list)
           }
         >
           Send Email
