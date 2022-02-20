@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/ReferralFactoryTax/static/css/main.073c9b0a.css",
+    "main.js": "/ReferralFactoryTax/static/js/main.23bb982d.js",
+    "index.html": "/ReferralFactoryTax/index.html",
+    "main.073c9b0a.css.map": "/ReferralFactoryTax/static/css/main.073c9b0a.css.map",
+    "main.23bb982d.js.map": "/ReferralFactoryTax/static/js/main.23bb982d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.073c9b0a.css",
+    "static/js/main.23bb982d.js"
+  ]
+}
