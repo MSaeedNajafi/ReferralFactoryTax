@@ -52,9 +52,9 @@ function CampaignSection(props) {
         </div>
         <br />
         <div>
-          <Button variant="contained" onClick={() => props.handleUsers("all")}>
+          {/* <Button variant="contained" onClick={() => props.handleUsers("all")}>
             get users
-          </Button>
+          </Button> */}
 
           <Button
             variant="contained"

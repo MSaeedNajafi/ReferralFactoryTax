@@ -27,28 +27,28 @@ function EmailSection(props) {
   //   await showEmail();
   // }, [props.id]);
 
-  useEffect(() => {
-    // console.log("Email: users->", usersEmailSend);
-  }, [usersEmailSend]);
+  // useEffect(() => {
+  // console.log("Email: users->", usersEmailSend);
+  // }, [usersEmailSend]);
 
-  const showEmail = async () => {
-    // await fetch(`https://referral-factory.com/api/v1/users/`, {
-    //   method: "GET",
-    //   headers: new Headers({
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${token}`,
-    //   }),
-    // })
-    //   .then((res) => res.json())
-    //   .then(async (data) => {
-    //     // console.log(data.data);
-    //     setUsersEmailSend(data.data.filter((u) => props.id == u.campaign_id));
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
-    // setMailContent(true);
-  };
+  // const showEmail = async () => {
+  // await fetch(`https://referral-factory.com/api/v1/users/`, {
+  //   method: "GET",
+  //   headers: new Headers({
+  //     "Content-Type": "application/json",
+  //     Authorization: `Bearer ${token}`,
+  //   }),
+  // })
+  //   .then((res) => res.json())
+  //   .then(async (data) => {
+  //     // console.log(data.data);
+  //     setUsersEmailSend(data.data.filter((u) => props.id == u.campaign_id));
+  //   })
+  //   .catch((error) => {
+  //     console.log(error);
+  //   });
+  // setMailContent(true);
+  // };
 
   const changeDate = (date) => {
     // console.log(date);
@@ -87,7 +87,7 @@ function EmailSection(props) {
                 months[new Date().getMonth()]
           ).length;
 
-          console.log(" ->  " + props.savedUsers[i]);
+          // console.log(" ->  " + props.savedUsers[i]);
 
           list[index] = obj;
           index++;
@@ -97,13 +97,24 @@ function EmailSection(props) {
     }
 
     const sendEmaiLwithThisInfo = async (list) => {
-      console.log(list);
+      // let res = " ";
+      // for (let i = 0; i < list.length; i++) {
+      //   res =
+      //     "user with [" +
+      //     list[i].id +
+      //     "], name = " +
+      //     list[i].name +
+      //     " has " +
+      //     list[i].q +
+      //     " Qualified users.";
+      //   console.log(res);
+      // }
 
-      // const response = await axios.post("http://localhost:8000/sendemail", {
-      //   list,
-      // });
+      const response = await axios.post("http://localhost:8000/sendemail", {
+        list,
+      });
 
-      // console.log("response--> ", response.data);
+      console.log("response--> ", response.data);
     };
 
     return (
@@ -127,7 +138,7 @@ function EmailSection(props) {
         </div>
         {list.map((li, index) => (
           <>
-            <Grid item xs={12} key={li.id} style={{}}>
+            <Grid item xs={12} key={li.id + index} style={{}}>
               <div
                 style={{
                   display: "flex",

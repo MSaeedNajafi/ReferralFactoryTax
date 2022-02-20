@@ -22,6 +22,19 @@ app.post("/sendemail", async (req, res) => {
 
     console.log("list ==> ", list);
 
+    let ress = " ";
+    for (let i = 0; i < list.length; i++) {
+      ress =
+        "user with [" +
+        list[i].id +
+        "], name = " +
+        list[i].name +
+        " has " +
+        list[i].q +
+        " Qualified users.";
+      console.log(ress);
+    }
+
     await sendAutoMail(list)
       .then((result) => console.log("Sending Automatic Email...", result))
       .catch((error) => console.log(error.message));
