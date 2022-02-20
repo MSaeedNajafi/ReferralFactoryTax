@@ -115,10 +115,10 @@ function EmailSection(props) {
             textAlign: "center",
           }}
         >
-          <p>id</p>
-          <p>first_name</p>
+          <p>User Id</p>
+          <p>First Fame</p>
 
-          <p>q</p>
+          <p>Qualified</p>
 
           {/* <p>qualified</p>
           <p>reach</p>
