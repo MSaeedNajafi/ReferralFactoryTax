@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
+import emailjs from "@emailjs/browser";
 
 import { Button, Divider, Grid } from "@mui/material";
 
 function EmailSection(props) {
   const [usersEmailSend, setUsersEmailSend] = useState([]);
   const [mailContent, setMailContent] = useState(false);
+  const form = useRef();
   const [token, setToken] = useState(
     "aOIKFDPV2GVd7lvbQCz1t08sgvJto5N0dCWLaACKTxypWpsnGJjoDPtQ8SjXTtc7gCCc1xkkPYHLpQif"
   );
@@ -96,6 +98,46 @@ function EmailSection(props) {
       }
     }
 
+    // const sendEmail = (list) => {
+    //   console.log(list);
+
+    //   var data = {
+    //     service_id: "taxfactory",
+    //     template_id: "template_o6tuwk3",
+    //     user_id: "user_GedSCCbvWhwAiBJbXnXJ7",
+    //     template_params: {
+    //       message: "Hi hon are you?",
+    //     },
+    //   };
+
+    //   fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    //     type: "POST",
+    //     data: JSON.stringify(data),
+    //     contentType: "application/json",
+    //   })
+    //     // .then((res) => res.json())
+    //     .then(() => alert("Your mail is sent!"))
+    //     .catch((error) => {
+    //       console.log(error);
+    //     });
+
+    //   // emailjs
+    //   //   .sendForm(
+    //   //     "taxfactory",
+    //   //     "taxfactory",
+    //   //     form.current,
+    //   //     "user_GedSCCbvWhwAiBJbXnXJ7"
+    //   //   )
+    //   //   .then(
+    //   //     (result) => {
+    //   //       console.log(result.text);
+    //   //     },
+    //   //     (error) => {
+    //   //       console.log(error.text);
+    //   //     }
+    //   //   );
+    // };
+
     const sendEmaiLwithThisInfo = async (list) => {
       // let res = " ";
       // for (let i = 0; i < list.length; i++) {
@@ -109,12 +151,10 @@ function EmailSection(props) {
       //     " Qualified users.";
       //   console.log(res);
       // }
-
-      const response = await axios.post("http://localhost:8000/sendemail", {
-        list,
-      });
-
-      console.log("response--> ", response.data);
+      // const response = await axios.post("http://localhost:8000/sendemail", {
+      //   list,
+      // });
+      // console.log("response--> ", response.data);
     };
 
     return (
@@ -125,6 +165,7 @@ function EmailSection(props) {
             justifyContent: "space-between",
             textAlign: "center",
           }}
+          ref={form}
         >
           <p>User Id</p>
           <p>First Fame</p>
@@ -191,7 +232,13 @@ function EmailSection(props) {
           </>
         )}
 
-        <Button variant="contained" onClick={() => sendEmaiLwithThisInfo(list)}>
+        <Button
+          variant="contained"
+          onClick={
+            () => sendEmaiLwithThisInfo(list)
+            // sendEmail(list)
+          }
+        >
           Send Email
         </Button>
       </>
