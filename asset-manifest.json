@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/ReferralFactoryTax/static/css/main.073c9b0a.css",
-    "main.js": "/ReferralFactoryTax/static/js/main.8af0dd80.js",
+    "main.js": "/ReferralFactoryTax/static/js/main.ddeec1c3.js",
     "index.html": "/ReferralFactoryTax/index.html",
     "main.073c9b0a.css.map": "/ReferralFactoryTax/static/css/main.073c9b0a.css.map",
-    "main.8af0dd80.js.map": "/ReferralFactoryTax/static/js/main.8af0dd80.js.map"
+    "main.ddeec1c3.js.map": "/ReferralFactoryTax/static/js/main.ddeec1c3.js.map"
   },
   "entrypoints": [
     "static/css/main.073c9b0a.css",
-    "static/js/main.8af0dd80.js"
+    "static/js/main.ddeec1c3.js"
   ]
 }
