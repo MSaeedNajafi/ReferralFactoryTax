@@ -20,8 +20,8 @@ import {
 } from "@mui/material";
 
 import { DataGrid, getGridStringOperators } from "@mui/x-data-grid";
-
-import { usePagedData } from "./usePagedData";
+import { RateLimiter } from "limiter";
+// import { usePagedData } from "./usePagedData";
 
 function UserSection(props) {
   const [userId, setUserId] = useState("");
@@ -34,6 +34,8 @@ function UserSection(props) {
   const [token, setToken] = useState(
     "aOIKFDPV2GVd7lvbQCz1t08sgvJto5N0dCWLaACKTxypWpsnGJjoDPtQ8SjXTtc7gCCc1xkkPYHLpQif"
   );
+  const [allofusers, setallusers] = useState([]);
+
   const [rowsState, setRowsState] = React.useState({
     page: 1,
     pageSize: 25,
@@ -54,35 +56,39 @@ function UserSection(props) {
     "November",
     "December",
   ];
+  const limiter = new RateLimiter({
+    tokensPerInterval: 55,
+    interval: "minute",
+  });
 
   // useEffect(() => {
   //   console.log("< users--->", users);
   // }, [users]);
 
-  const { rows, loading } = usePagedData(
-    props.id,
-    rowsState.page,
-    rowsState.pageSize
-  );
+  // const { rows, loading } = usePagedData(
+  //   props.id,
+  //   rowsState.page,
+  //   rowsState.pageSize
+  // );
 
-  useEffect(() => {
-    let active = true;
+  // useEffect(() => {
+  //   let active = true;
 
-    // console.log("here -->>>>>>", rows);
+  //   // console.log("here -->>>>>>", rows);
 
-    (async () => {
-      setRowsState((prev) => ({ ...prev, loading: true }));
+  //   (async () => {
+  //     setRowsState((prev) => ({ ...prev, loading: true }));
 
-      if (!active) {
-        return;
-      }
-      setRowsState((prev) => ({ ...prev, loading: false, rows: rows }));
-    })();
+  //     if (!active) {
+  //       return;
+  //     }
+  //     setRowsState((prev) => ({ ...prev, loading: false, rows: rows }));
+  //   })();
 
-    return () => {
-      active = false;
-    };
-  }, [rowsState.page, rowsState.pageSize, rows]);
+  //   return () => {
+  //     active = false;
+  //   };
+  // }, [rowsState.page, rowsState.pageSize, rows]);
 
   const fetchAllUsers = async (pageNumber) => {
     console.log("----------------------------------");
@@ -125,54 +131,76 @@ function UserSection(props) {
 
   useEffect(async () => {
     console.log("+++++++++++++++++++");
-    await fetchAllUsersLiam();
+    // loadUsers={loadUsers}
+    // setLoadUsers={setLoadUsers}
+    props.setLoadUsers(true);
+    const alllUsers = await fetchAllUsersLiam();
+    // props.setLoadUsers(false);
     console.log("+++++++++++++++++++");
+    console.log(alllUsers);
+    if (!props.loadUsers) {
+      // console.log("inside");
+      setallusers(alllUsers);
+    }
+
+    console.log(allofusers);
+
+    console.log(allofusers.length);
   }, [props.maxPageNr]);
 
   const fetchAllUsersLiam = async () => {
-    // let resp = await fetchUser(`https://referral-factory.com/api/v1/users?page=0}`)
-    // get the page total out of the first respons
-    let totalPages = props.maxPageNr + 1;
-    console.log("totalPages ==> ", totalPages);
+    const remainingRequests = await limiter.removeTokens(1);
+    let resp = await fetchUser(
+      `https://referral-factory.com/api/v1/users?page=0}`
+    );
+    // console.log("------- <><><><>", resp);
+    // get the page total out of ,the first respons
+    let totalPages = resp.meta.last_page;
+    // console.log("totalPages ==> ", totalPages);
 
     // //still have to add the rate limiter
-    const urls = Array.from(Array(totalPages).keys()).map(
+    let nums = Array.from(Array(totalPages + 1).keys());
+    nums.shift();
+    const urls = nums.map(
       (pageNo) => `https://referral-factory.com/api/v1/users?page=${pageNo}`
     );
 
-    console.log(urls);
+    // console.log(urls);
     // Smart stuff to respect the page limit.
     let allUsers = [];
-    // for (url in urls) {
-    //   //rateLimiter.wait()
-    //   let cutUsers = await fetchUser(url);
-    //   //add all the users together
-    //   allUsers += allUsers;
-    // }
+    // let allinOnearray = [];
 
+    for (let url in urls) {
+      //rateLimiter.wait()
+      const remainingRequests = await limiter.removeTokens(1);
+      let cutUsers = await fetchUser(urls[url]);
+      //add all the users together
+      console.log(url, cutUsers.data);
+      allUsers.push(cutUsers.data);
+      // allinOnearray.concat(cutUsers);
+    }
+    // console.log("allinOnearray = ", allinOnearray);
+
+    console.log("all users length: ", allUsers);
+
+    let index = 1;
+    for (let i = 0; i < allUsers.length; i++) {
+      for (let j = 0; j < allUsers[i].length; j++) {
+        if (
+          allUsers[i][j].campaign_id == props.id &&
+          (allUsers[i][j].qualified ||
+            allUsers[i][j].converted_referrals_count > 0)
+        ) {
+          console.log(allUsers[i][j]);
+          props.setSavedUsers((items) => [...items, allUsers[i][j]]);
+          index++;
+        }
+      }
+    }
+    props.setLoadUsers(false);
+
+    //setFilms((items) => [...items, movies[i][j]]);
     return allUsers;
-    // await fetch(
-    //   `https://referral-factory.com/api/v1/users?page=${pageNumber}`,
-    //   {
-    //     method: "GET",
-    //     headers: new Headers({
-    //       "Content-Type": "application/json",
-    //       Authorization: `Bearer ${token}`,
-    //       with: "all",
-    //     }),
-    //   }
-    // )
-    //   .then((res) => res.json())
-    //   .then(async (data) => {
-    //     // console.log("=================rows=================");
-    //     // console.log("---->", data);
-    //     // console.log("---->", data.data);
-    //     setUsers(data.data);
-    //     return data.data;
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
   };
 
   const handleClickOpenModal = () => {

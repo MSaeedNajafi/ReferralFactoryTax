@@ -28,6 +28,9 @@ export const usePagedData = (campaignId, page, pageSize) => {
       const users = await fetchAllUsers(page);
 
       const userRows = users
+        // This looks suspicious - you might be losing users because they
+        // don't match the campaign? Shouldn't you pass the campaignId
+        // as part of the fetch in that case?
         .filter((user) => user.campaign_id == campaignId)
         .map((user, index) => ({
           id: index + 1,

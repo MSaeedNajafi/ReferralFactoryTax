@@ -9,54 +9,85 @@ function EmailSection(props) {
   const [token, setToken] = useState(
     "aOIKFDPV2GVd7lvbQCz1t08sgvJto5N0dCWLaACKTxypWpsnGJjoDPtQ8SjXTtc7gCCc1xkkPYHLpQif"
   );
-
-  useEffect(async () => {
-    await showEmail();
-  }, [props.id]);
+  const months = [
+    "January",
+    "February ",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  // useEffect(async () => {
+  //   await showEmail();
+  // }, [props.id]);
 
   useEffect(() => {
     // console.log("Email: users->", usersEmailSend);
   }, [usersEmailSend]);
 
   const showEmail = async () => {
-    await fetch(`https://referral-factory.com/api/v1/users/`, {
-      method: "GET",
-      headers: new Headers({
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      }),
-    })
-      .then((res) => res.json())
-      .then(async (data) => {
-        // console.log(data.data);
-        setUsersEmailSend(data.data.filter((u) => props.id == u.campaign_id));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    setMailContent(true);
+    // await fetch(`https://referral-factory.com/api/v1/users/`, {
+    //   method: "GET",
+    //   headers: new Headers({
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${token}`,
+    //   }),
+    // })
+    //   .then((res) => res.json())
+    //   .then(async (data) => {
+    //     // console.log(data.data);
+    //     setUsersEmailSend(data.data.filter((u) => props.id == u.campaign_id));
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
+    // setMailContent(true);
+  };
+
+  const changeDate = (date) => {
+    // console.log(date);
+    var d = new Date(date);
+    // console.log(d);
+    // console.log(month[d.getMonth()]);
+    // console.log("=========");
+    return months[d.getMonth()];
   };
 
   const showEmailConent = () => {
+    // const list = props.savedUsers.filter((u) => props.id == u.campaign_id);
     const list = [];
     let index = 0;
 
-    for (let i = 0; i < usersEmailSend.length; i++) {
-      for (let j = 0; j < usersEmailSend.length; j++) {
+    for (let i = 0; i < props.savedUsers.length; i++) {
+      for (let j = 0; j < props.savedUsers.length; j++) {
         if (
-          usersEmailSend[i].id == usersEmailSend[j].referrer_id &&
-          usersEmailSend[j].qualified
+          props.savedUsers[i].id == props.savedUsers[j].referrer_id &&
+          props.savedUsers[j].qualified &&
+          changeDate(props.savedUsers[j].qualified_at) ==
+            months[new Date().getMonth()]
         ) {
           let obj = { id: "", name: "", q: 0 };
-          obj.id = usersEmailSend[i].id;
+          obj.id = props.savedUsers[i].id;
           obj.name =
-            usersEmailSend[i].first_name +
+            props.savedUsers[i].first_name +
             " < " +
-            usersEmailSend[i].email +
+            props.savedUsers[i].email +
             " > ";
-          obj.q = usersEmailSend.filter(
-            (user) => user.referrer_id == usersEmailSend[i].id && user.qualified
+          obj.q = props.savedUsers.filter(
+            (user) =>
+              user.referrer_id == props.savedUsers[i].id &&
+              user.qualified &&
+              changeDate(props.savedUsers[j].qualified_at) ==
+                months[new Date().getMonth()]
           ).length;
+
+          console.log(" ->  " + props.savedUsers[i]);
 
           list[index] = obj;
           index++;
@@ -68,15 +99,32 @@ function EmailSection(props) {
     const sendEmaiLwithThisInfo = async (list) => {
       console.log(list);
 
-      const response = await axios.post("http://localhost:8000/sendemail", {
-        list,
-      });
+      // const response = await axios.post("http://localhost:8000/sendemail", {
+      //   list,
+      // });
 
-      console.log("response--> ", response.data);
+      // console.log("response--> ", response.data);
     };
 
     return (
       <>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            textAlign: "center",
+          }}
+        >
+          <p>id</p>
+          <p>first_name</p>
+
+          <p>q</p>
+
+          {/* <p>qualified</p>
+          <p>reach</p>
+          <p>referrer_id</p>
+          <p>qualified_at</p> */}
+        </div>
         {list.map((li, index) => (
           <>
             <Grid item xs={12} key={li.id} style={{}}>
@@ -84,10 +132,18 @@ function EmailSection(props) {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
+                  textAlign: "center",
                 }}
               >
+                <p>{li.id}</p>
                 <p>{li.name}</p>
+
                 <p>{li.q}</p>
+
+                {/* <p>{li.qualified + ""}</p>
+                <p>{li.reach}</p>
+                <p>{li.referrer_id}</p>
+                <p>{changeDate(li.qualified_at)}</p> */}
               </div>
             </Grid>
             <Divider style={{ width: "100%" }} />
@@ -135,7 +191,7 @@ function EmailSection(props) {
     <>
       <Grid item xs={12} style={{ padding: 20 }}>
         <Grid item xs={12} style={{ padding: 20, border: "1px solid grey" }}>
-          <Button
+          {/* <Button
             type="submit"
             variant="contained"
             onClick={() => {
@@ -144,8 +200,8 @@ function EmailSection(props) {
             // style={{ width: "100%" }}
           >
             Update Email Content
-          </Button>
-          {mailContent && <>{showEmailConent()}</>}
+          </Button> */}
+          <>{showEmailConent()}</>
         </Grid>
       </Grid>
     </>

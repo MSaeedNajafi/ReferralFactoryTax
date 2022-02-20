@@ -55,6 +55,14 @@ function CampaignSection(props) {
           <Button variant="contained" onClick={() => props.handleUsers("all")}>
             get users
           </Button>
+
+          <Button
+            variant="contained"
+            disabled={props.loadUsers ? true : false}
+            onClick={() => console.log("all")}
+          >
+            {props.loadUsers ? "loading....." : "Users"}
+          </Button>
         </div>
       </div>
     </>

@@ -39,6 +39,8 @@ function App() {
   const [currentPageNr, setCurrentPageNr] = useState(0);
   const [maxPageNr, setMaxageNr] = useState(0);
   const [total, setToal] = useState(0);
+  const [loadUsers, setLoadUsers] = useState(false);
+  const [savedUsers, setSavedUsers] = useState([]);
 
   const handleClose = () => {
     setOpen(false);
@@ -196,6 +198,8 @@ function App() {
                         reach={reach}
                         url={url}
                         handleUsers={handleUsers}
+                        loadUsers={loadUsers}
+                        setLoadUsers={setLoadUsers}
                       />
 
                       <br />
@@ -214,6 +218,10 @@ function App() {
                         total={total}
                         currentPageNr={currentPageNr}
                         maxPageNr={maxPageNr}
+                        loadUsers={loadUsers}
+                        setLoadUsers={setLoadUsers}
+                        savedUsers={savedUsers}
+                        setSavedUsers={setSavedUsers}
                       />
                     </div>
                   )}
@@ -222,7 +230,11 @@ function App() {
                 <Divider style={{ width: "100%" }} />
 
                 {/* Seding Email Section */}
-                <>{showEmailSection && <EmailSection id={id} />}</>
+                <>
+                  {showEmailSection && (
+                    <EmailSection id={id} savedUsers={savedUsers} />
+                  )}
+                </>
               </Grid>
             </Box>
           </Collapse>
